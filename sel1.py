@@ -26,6 +26,7 @@ if not os.path.exists(dir_path):
     os.makedirs(dir_path)
 
 # 검색 결과 페이지 URL
+""" #페이지 끝까지 스크롤 후 이미지 가져옴
 last_height = driver.execute_script("return document.body.scrollHeight")
 while True:
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -34,19 +35,18 @@ while True:
     if new_height == last_height:
         break
     last_height = new_height
+"""
 
 # 이미지 다운로드
-images = driver.find_element(By.CSS_SELECTOR, ".rg_i")
+images = driver.find_elements(By.CSS_SELECTOR, ".rg_i")
 for i, image in enumerate(images):
     try:
         image.click()
         time.sleep(2)
         original_image_url = None
-        elements = driver.find_element(By.CSS_SELECTOR, ".n3VNCb")
-        for element in elements:
-            if element.get_attribute("src") and element.get_attribute("src").startswith("http"):
-                original_image_url = element.get_attribute("src")
-                break
+        element = driver.find_element(By.CSS_SELECTOR, ".iPVvYb")
+        if element.get_attribute("src") and element.get_attribute("src").startswith("http"):
+            original_image_url = element.get_attribute("src")
         if not original_image_url:
             raise ValueError("Could not find image URL")
         filename = "{}_{}.jpg".format(search, i)
@@ -55,6 +55,9 @@ for i, image in enumerate(images):
         with open(filepath, "wb") as f:
             f.write(response.content)
         print("다운로드 완료:", filepath)
+        #10개만 다운
+        if i == 10-1:
+            break
     except Exception as e:
         print("에러 발생:", e)
 # Chrome 드라이버 종료
